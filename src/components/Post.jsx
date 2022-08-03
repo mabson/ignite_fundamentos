@@ -1,52 +1,64 @@
 import { Avatar } from "./Avatar";
 import { Comment } from "./Comment";
 import styles from "./Post.module.css";
+import { format, formatDistanceToNow } from "date-fns";
+import ptBR from "date-fns/locale/pt-BR";
 
-export function Post() {
+export function Post({ author, publishedAd, content }) {
+  const publishedDateFormatted = format(
+    publishedAd,
+    "d 'de' LLLL 'às' HH:mm'h'",
+    { locale: ptBR }
+  );
+
+  const publishedDateRelativeToNow = formatDistanceToNow(publishedAd, {
+    locale: ptBR,
+    addSuffix: true,
+  });
+
   return (
     <article className={styles.post}>
       <header>
         <div className={styles.author}>
-          <Avatar src="https://github.com/mabson.png" /> 
+          <Avatar src={author.avatarUrl} />
           <div className={styles.authorInfo}>
-            <strong>Mabson Vinicius</strong>
-            <span>Developer</span>
+            <strong>{author.name}</strong>
+            <span>{author.role}</span>
           </div>
         </div>
 
-        <time title="11 de Maio às 08:13h" dateTime="2022-05-11 08:15:30">
-          Publicado há 1h
+        <time
+          title={publishedDateFormatted}
+          dateTime={publishedAd.toISOString()}
+        >
+          {publishedDateRelativeToNow}
         </time>
       </header>
       <div className={styles.content}>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. </p>
+        {
+          content.map((line) => {
+            
+            if(line.type === 'paragraph') {
+              return <p>{line.content}</p>
+            }
 
-        <p>
-          Vitae perspiciatis aliquid quaerat, sunt incidunt reprehenderit
-          dolorem accusamus ipsam. Eligendi dolorem ipsum cum ipsa quia sed,
-          porro possimus voluptatem totam amet.
-        </p>
-
-        <p>
-          <a href="">Lorem Ipsum</a>
-        </p>
-
-        <p>
-          <a href="">#Lorem</a> {' '}
-          <a href="">#Ipsum</a> {' '}
-        </p>
+            if(line.type === 'link') {
+              return <p><a href={line.href}>{line.content}</a></p>
+            }
+          })
+        }
       </div>
 
       <form className={styles.commentForm}>
         <strong>Deixe seu feedback</strong>
-        <textarea 
-            placeholder="Deixe um comentário"
-            // className={styles.}
-         />
-         
-         <footer>
-            <button type="submit">Publicar</button>
-         </footer>
+        <textarea
+          placeholder="Deixe um comentário"
+          // className={styles.}
+        />
+
+        <footer>
+          <button type="submit">Publicar</button>
+        </footer>
       </form>
 
       <div className={styles.commentList}>
@@ -54,7 +66,6 @@ export function Post() {
         <Comment />
         <Comment />
       </div>
-
     </article>
   );
 }
